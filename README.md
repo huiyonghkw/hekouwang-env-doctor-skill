@@ -7,7 +7,17 @@
 </p>
 
 <p align="center">
-  <sub>演示中的数字为作者本机真实体检结果 · 全程只读 · 命令交给你自己跑</sub>
+  <sub>▲ Claude Code 里的真机实录 · 数字为作者本机实测</sub>
+</p>
+
+### 想清理时：交互式选择器
+
+<p align="center">
+  <img src="demo/selector.gif" alt="清理选择器：空格勾选、数据类锁死、实时合计、确认后才执行" width="100%">
+</p>
+
+<p align="center">
+  <sub>▲ <code>bash scripts/clean.sh</code> ｜ 默认全不选 · 🔒 数据类勾不上 · 确认页列出命令与代价 · 输入 yes 才动手</sub>
 </p>
 
 ## 它解决什么
@@ -31,9 +41,11 @@ fnm    1.7 GB  已加载  在PATH    node由它提供   最后改动 2026-05  �
 
 ## 三条铁律
 
-1. **永不执行删除** —— 命令打印给你，你自己跑。你说「帮我删」也不行。
-2. **只读扫描** —— 扫描脚本不含任何写操作。
+1. **删除只能来自你逐项勾选** —— 默认全不选、数据类锁死勾不上、只跑白名单里写死的命令、输入 `yes` 才动手、随时可 `--dry-run` 先看不执行。**模型自己不会拼一条 `rm` 跑掉**。
+2. **扫描器只读** —— `scan.sh` 不含任何写操作；删除只发生在 `clean.sh` 里。
 3. **不确定就说不确定** —— 信号矛盾时如实标注，不猜。
+
+> 顺带一提：**这个工具不替你改 `.zshrc`**。删完版本管理器目录，它只提示你去清理 shell 里的初始化行——自动改配置比删目录更危险。
 
 ## 用法
 
@@ -41,11 +53,13 @@ fnm    1.7 GB  已加载  在PATH    node由它提供   最后改动 2026-05  �
 磁盘满了，帮我看看什么占了空间
 ```
 
-或直接跑扫描器：
+或直接跑脚本：
 
 ```bash
-bash scripts/scan.sh          # 全量
-bash scripts/scan.sh --quick  # 快扫
+bash scripts/scan.sh          # 体检（只读，全量）
+bash scripts/scan.sh --quick  # 体检（只读，快扫）
+bash scripts/clean.sh --dry-run   # 清理选择器 · 只演示不执行
+bash scripts/clean.sh             # 清理选择器 · 勾选后执行
 ```
 
 体检器会把结果分成 🟠残留 / 🟡缓存 / 🔴数据 三组，**逐组问你**，确认后才给命令。
@@ -54,15 +68,17 @@ bash scripts/scan.sh --quick  # 快扫
 
 ```
 SKILL.md              # 路由 + 铁律
-scripts/scan.sh       # 只读扫描器
+scripts/
+  scan.sh             # 只读扫描器
+  clean.sh            # 清理选择器（唯一允许删除处，白名单驱动）
 references/
   rules.md            # 残留特征规则库（工具→目录→判活法→官方命令→代价）
   report.md           # 报告格式与对话流程
   safety.md           # 安全铁律与自检清单
 demo/
-  env-doctor.gif      # README 演示
-  demo.tape           # VHS 脚本，可重新生成：vhs demo/demo.tape
-  demo.sh             # 回放脚本（数据为作者本机实测）
+  env-doctor.gif      # Claude Code 真机实录
+  selector.gif        # 清理选择器演示
+  selector.tape       # VHS 脚本，可重新生成：vhs demo/selector.tape
 ```
 
 ## 覆盖范围
