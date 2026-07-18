@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <sub>▲ <code>bash scripts/clean.sh</code> ｜ 默认全不选 · 🔒 数据类勾不上 · 确认页列出命令与代价 · 输入 yes 才动手</sub>
+  <sub>▲ 真机实录：<code>bash scripts/clean.sh --dry-run</code> 先看不执行，确认页逐条列出命令与代价</sub>
 </p>
 
 ## 它解决什么
@@ -76,9 +76,8 @@ references/
   report.md           # 报告格式与对话流程
   safety.md           # 安全铁律与自检清单
 demo/
-  env-doctor.gif      # Claude Code 真机实录
-  selector.gif        # 清理选择器演示
-  selector.tape       # VHS 脚本，可重新生成：vhs demo/selector.tape
+  env-doctor.gif      # Claude Code 里出体检报告 · 真机实录
+  selector.gif        # 清理选择器 · 真机实录
 ```
 
 ## 覆盖范围
