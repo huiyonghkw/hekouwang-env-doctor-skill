@@ -3,7 +3,7 @@
 > 会勇禾口王「体检器家族」第三把 —— 前两把体检文件，这把体检机器。
 
 <p align="center">
-  <img src="demo/env-doctor.gif" alt="env-doctor 演示：把磁盘占用分成 残留/缓存/数据 三组，重点标出「你已经不用的工具」" width="100%">
+  <img src="demo/env-doctor.gif?v=2" alt="env-doctor 演示：把磁盘占用分成 残留/缓存/数据 三组，重点标出「你已经不用的工具」" width="100%">
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 ### 想清理时：交互式选择器
 
 <p align="center">
-  <img src="demo/selector.gif" alt="清理选择器：空格勾选、数据类锁死、实时合计、确认后才执行" width="100%">
+  <img src="demo/selector.gif?v=2" alt="清理选择器：空格勾选、数据类锁死、实时合计、确认后才执行" width="100%">
 </p>
 
 <p align="center">
