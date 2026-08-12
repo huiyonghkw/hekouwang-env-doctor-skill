@@ -5,7 +5,7 @@ displayName: 开发环境体检器（env-doctor）
 summary: 不问「哪个目录大」，问「这个工具你还在用吗」——四信号（shell 是否加载 × 命令是否在 PATH × 运行时实际由谁提供 × 目录多久没动）揪出换掉却没卸干净的旧工具，把占用分成 数据/缓存/残留 三类。配交互式清理选择器：逐项勾选、数据类锁死不可选、只跑白名单命令、确认后才执行。零依赖，体检器家族第三把。
 license: MIT
 homepage: https://github.com/huiyonghkw/hekouwang-env-doctor-skill
-version: 1.1.0
+version: 1.2.0
 allowed-tools: Bash, Read
 description: 会勇禾口王 · 开发环境体检器（第三把 doctor）。扫描 Mac/Linux 上被开发工具占掉的磁盘空间，把每个目录判定成「数据 / 缓存 / 残留」三类，重点识别**你已经换掉但从没卸干净的旧工具**（如还留着 nvm 却早就在用 fnm），逐条给出判定依据、官方清理命令与代价。配交互式清理选择器（空格勾选、数据类锁死勾不上、确认后才执行、支持 --dry-run），删什么由你逐项勾。触发：用户说「磁盘满了 / 硬盘不够了 / 清理缓存 / 电脑越用越满 / 开发环境体检 / 查查什么占空间 / env-doctor / 环境体检 / disk doctor / 我的 Mac 空间去哪了 / node_modules 太大 / 缓存清理 / 残留清理 / 换过 nvm 想清干净」。任何「查/清 本机磁盘被开发工具占用」的请求都应触发。
 ---
@@ -37,11 +37,12 @@ description: 会勇禾口王 · 开发环境体检器（第三把 doctor）。�
 ### 第 1 步 · 扫描
 
 ```bash
-bash scripts/scan.sh          # 全量（含家目录大户发现，约 30–60 秒）
-bash scripts/scan.sh --quick  # 快扫（跳过发现扫描，约 20 秒）
+bash scripts/scan.sh                      # 全量（含家目录大户发现，约 30–60 秒）
+bash scripts/scan.sh --quick              # 快扫（跳过发现扫描，约 20 秒）
+bash scripts/scan.sh --profile ai-dev     # AI 开发机快扫（Agent 宿主目录 + 跳过大户发现）
 ```
 
-输出五节原始数据：`DISK`（真实磁盘，macOS 走数据卷）· `SIZES`（候选目录体积）· `MANAGERS`（版本管理器四信号）· `RUNTIME`（运行时实际来源）· `DISCOVER`（规则库未覆盖的大户）。
+输出六节原始数据：`DISK` · `SIZES` · `MANAGERS` · `RUNTIME` · `AI_AGENTS`（有 Agent 宿主时）· `DISCOVER`（全量才有）。
 
 ### 第 2 步 · 判定
 
@@ -90,3 +91,13 @@ bash scripts/clean.sh             # 勾选后清理
 - 只覆盖**开发工具**占用（版本管理器 / 包管理器 / 构建缓存 / 容器 / AI 模型）。系统缓存、照片、邮件附件、微信不在范围内——那些交给系统「存储空间」界面。
 - 家目录范围内扫描，不碰系统目录、不碰其他用户。
 - 不联网、不上报任何扫描结果。
+
+## 体检器家族互链
+
+| 层 | Skill | 何时转交 |
+|---|---|---|
+| 配置 | `hekouwang-claude-md-doctor-skill` | `AGENTS.md`/`CLAUDE.md` 重复、路由错、缺 frontmatter |
+| 技能 | `hekouwang-claude-skill-doctor-skill` | `SKILL.md` 结构、死链、OpenClaw 声明 |
+| 环境 | **本 skill** | 磁盘满、版本管理器残留、AI 宿主目录膨胀 |
+
+报告里若发现配置/技能问题，**点名另外两把**，不要在本报告里硬做文件内容审计。

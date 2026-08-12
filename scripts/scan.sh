@@ -4,14 +4,28 @@
 # ⛔ 铁律：本脚本【只读】。全文不含 rm / rmdir / trash / unlink / mv / truncate 等任何破坏性命令。
 #    它只负责「量体温」，判定与建议交给模型，删除动作永远交给用户本人执行。
 #
-# 用法：bash scan.sh            # 全量扫描
-#      bash scan.sh --quick    # 跳过耗时的家目录发现扫描
+# 用法：bash scan.sh                      # 全量扫描
+#      bash scan.sh --quick               # 跳过耗时的家目录发现扫描
+#      bash scan.sh --profile ai-dev      # AI 开发机快扫（Agent 宿主 + 跳过大户发现）
+#      bash scan.sh --quick --profile ai-dev
 #
 # 输出为分节纯文本，供模型按 references/rules.md 判定。
 
 set -uo pipefail
 QUICK=0
-[ "${1:-}" = "--quick" ] && QUICK=1
+PROFILE=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --quick) QUICK=1 ;;
+    --profile)
+      shift
+      PROFILE="${1:-}"
+      ;;
+    --profile=*) PROFILE="${1#--profile=}" ;;
+  esac
+  shift
+done
+[ "$PROFILE" = "ai-dev" ] && QUICK=1
 
 human() {  # KB -> 人类可读
   local kb=${1:-0}
@@ -58,6 +72,18 @@ CANDIDATES=(
   "$HOME/Library/Developer/CoreSimulator/Devices"
   "$HOME/Library/pnpm" "$HOME/Library/Caches/pip"
 )
+AI_CANDIDATES=(
+  "$HOME/.claude" "$HOME/.cursor" "$HOME/.codex" "$HOME/.codebuddy"
+  "$HOME/.agents" "$HOME/.npm/_npx"
+  "$HOME/Library/Application Support/Cursor"
+  "$HOME/Library/Application Support/Claude"
+  "$HOME/Library/Caches/ms-playwright" "$HOME/.cache/ms-playwright"
+)
+if [ "$PROFILE" = "ai-dev" ]; then
+  CANDIDATES=("${AI_CANDIDATES[@]}" "${CANDIDATES[@]}")
+else
+  CANDIDATES+=("${AI_CANDIDATES[@]}")
+fi
 for d in "${CANDIDATES[@]}"; do
   [ -e "$d" ] || continue
   kb=$(size_kb "$d"); [ -z "${kb:-}" ] && continue
@@ -128,6 +154,25 @@ for rt in node python3 ruby java go rustc; do
   printf "%s\t%s\t%s\t%s\n" "$rt" "${p/#$HOME/~}" "${v:--}" "$owner"
 done
 echo
+
+# ── 4b. AI Agent 宿主快览（ai-dev 档重点看）──────────────
+if [ "$PROFILE" = "ai-dev" ] || [ -d "$HOME/.claude" ] || [ -d "$HOME/.cursor" ]; then
+  echo "## AI_AGENTS"
+  printf "# host\tdir\tsize\tskills_count\thas_mcp\n"
+  for host_dir in "$HOME/.claude" "$HOME/.cursor" "$HOME/.codex"; do
+    [ -d "$host_dir" ] || continue
+    kb=$(size_kb "$host_dir"); [ -z "${kb:-}" ] && kb=0
+    sk=0
+    for sd in "$host_dir/skills" "$host_dir/skills-cursor"; do
+      [ -d "$sd" ] && sk=$((sk + $(find "$sd" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')))
+    done
+    mcp="no"
+    [ -f "$host_dir/mcp.json" ] || [ -f "$host_dir/.mcp.json" ] && mcp="yes"
+    name=$(basename "$host_dir")
+    printf "%s\t%s\t%s\t%d\t%s\n" "$name" "${host_dir/#$HOME/~}" "$(human "$kb")" "$sk" "$mcp"
+  done
+  echo
+fi
 
 # ── 5. 隐藏大户发现（找规则库没覆盖到的）────────────────
 if [ "$QUICK" -eq 0 ]; then

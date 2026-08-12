@@ -1,4 +1,4 @@
-# 残留特征规则库 v1.0
+# 残留特征规则库 v1.1
 
 > 本文件是体检器的判定依据。**结构固定：目录 → 身份 → 判活法 → 官方处置命令 → 代价**。
 > 工具生态每年都在变（nvm→fnm→mise、pip→uv），本库需要跟着更新——**版本号在标题上，更新时改它**。
@@ -105,7 +105,32 @@
 
 ---
 
-## 六、规则库维护约定
+## 六、AI 开发与 Agent 宿主（2026 增补）
+
+> 对应 `scan.sh --profile ai-dev` 快扫档；体积大户常在「技能缓存 + 模型权重 + Playwright 浏览器」三类。
+
+| 目录 | 身份 | 判活特征 | 官方/推荐处置 | 代价 |
+|---|---|---|---|---|
+| `~/.claude` | **数据**（技能、MCP 配置、会话索引） | Claude Code / Cowork 仍在用 | 不整删；`skills/` 里过期 skill 可手动移走 | ⛔ 删了配置和技能全没 |
+| `~/.cursor` | **数据** | Cursor 仍在用 | 不整删；`projects/` 是索引缓存可择机清 | 重索引项目 |
+| `~/.codex` | **数据** | Codex CLI 仍在用 | 不整删 | 丢 CLI 配置 |
+| `~/.codebuddy` | **数据** | Codebuddy 仍在用 | 不整删 | 丢宿主配置 |
+| `~/.agents/skills`（若存在） | **数据** | 多宿主统一 skills 入口 | 只删确认不用的 skill 子目录 | 该 skill 失效 |
+| `~/.npm/_npx` | 缓存 | npx 一次性包 | `rm -rf ~/.npm/_npx` 或 `npm cache clean --force` | 下次 npx 重下 |
+| `~/Library/Application Support/Cursor` | **数据+缓存混合** | Cursor 主程序数据 | 只清 `Cache`/`GPUCache` 子目录，别整删 Support | 可能丢窗口布局 |
+| `~/Library/Application Support/Claude` | **数据** | Claude 桌面端 | 不整删 | 丢本地状态 |
+| `~/.cache/ms-playwright` `~/Library/Caches/ms-playwright` | 缓存 | Playwright 测浏览器 | `npx playwright install --force` 可重建；或删对应缓存目录 | 下次测试重下浏览器（数百 MB～数 GB） |
+| `~/.local/share/uv` `~/.cache/uv` | 缓存 | uv / Python 工具链 | `uv cache clean` | 重下 wheel |
+| `~/.ollama` `~/.cache/huggingface` | **数据**（模型） | 见第四节 | 见第四节 | 见第四节 |
+
+**报告互链（体检器家族）**：
+- 配置层异常（`AGENTS.md` / `CLAUDE.md` 重复、路由错）→ 建议用户跑 **`hekouwang-claude-md-doctor-skill`**（`claude-md-doctor`）
+- 技能层异常（`SKILL.md` 缺 frontmatter、死链）→ **`hekouwang-claude-skill-doctor-skill`**（`skill-doctor`）
+- 本器只管磁盘与环境残留，**不替另外两把做文件内容审计**
+
+---
+
+## 七、规则库维护约定
 
 - 新增工具时补齐五列：**目录 / 身份 / 判活特征 / 官方命令 / 代价**，缺一列不许并入。
 - 官方命令必须来自官方文档或工具自带 `--help`，**不许凭记忆写**；核实来源记在提交信息里。
