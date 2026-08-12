@@ -1,5 +1,13 @@
 # 更新日志
 
+## v1.2.1 · 2026-08-12
+
+P2：doctor-suite 互链 + 商业化可发现性。
+
+- `scripts/run-all-doctors.sh`、`references/doctor-suite.md`
+- README：30 秒验收、免费/付费表、@huiyonghkw CTA
+- summary 补英文 SEO 关键词
+
 ## v1.2.0 · 2026-08-12
 
 AI 开发机快扫 + 体检器家族互链。

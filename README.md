@@ -59,6 +59,23 @@ pyenv  121 MB   未加载  不在PATH  python由brew来  最后改动 2024-07  �
 | 删除方式 | 确认后批量删 | 逐项勾选，数据类勾不上 |
 | 清理后遗症 | 不管 | 提示你清 shell 里的初始化行 |
 
+---
+
+## 30 秒验收
+
+```bash
+bash scripts/scan.sh --profile ai-dev    # AI 开发机快扫（只读）
+bash scripts/run-all-doctors.sh .        # 三件套（md + skill + env）
+```
+
+## 免费 / 付费
+
+| | 免费（开源） | 付费增值 |
+|---|---|---|
+| 体检 | `scan.sh` 只读扫描 + 文本报告 | 品牌可视化占用图（可选） |
+| 清理 | `clean.sh` 交互选择器 | — |
+| 联系 | GitHub Issue | **@huiyonghkw** |
+
 ## 安装
 
 ```bash
