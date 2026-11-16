@@ -26,6 +26,51 @@ else
   B=""; D=""; R=""; O=""; Y=""; RD=""; G=""; C=""; GY=""
 fi
 
+# ── 版本管理器活跃性判定 ─────────────────────────────────
+# 与 scan.sh 同一套信号：shell 配置是否加载、命令是否在 PATH、最近是否动过。
+# 还在用的版本管理器一律锁成 data，不当作残留提供删除。
+SHELL_RC=""
+for rc in "$HOME/.zshrc" "$HOME/.zprofile" "$HOME/.zshenv" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.config/fish/config.fish"; do
+  [ -f "$rc" ] && SHELL_RC="$SHELL_RC $rc"
+done
+
+mgr_pattern() {
+  case "$1" in
+    "$HOME/.nvm")   echo 'NVM_DIR|nvm\.sh' ;;
+    "$HOME/.pyenv") echo 'PYENV_ROOT|pyenv init' ;;
+    "$HOME/.rbenv") echo 'RBENV_ROOT|rbenv init' ;;
+    "$HOME/.asdf")  echo 'asdf\.sh|ASDF_DIR' ;;
+    "$HOME/.volta") echo 'VOLTA_HOME|volta' ;;
+    *) return 1 ;;
+  esac
+}
+
+mgr_in_use() {  # 还在用 → 0
+  local dir="$1" pat loaded=0 inpath=0
+  # 1) shell 配置里有非注释的加载行
+  pat=$(mgr_pattern "$dir") || return 1
+  if [ -n "$SHELL_RC" ]; then
+    grep -h -E "$pat" $SHELL_RC 2>/dev/null | grep -v -E '^\s*#' | grep -q . && loaded=1
+  fi
+  # 2) 对应命令仍在 PATH
+  case "$dir" in
+    "$HOME/.nvm")   command -v node   >/dev/null 2>&1 && inpath=1 ;;
+    "$HOME/.pyenv") command -v pyenv  >/dev/null 2>&1 && inpath=1 ;;
+    "$HOME/.rbenv") command -v rbenv  >/dev/null 2>&1 && inpath=1 ;;
+    "$HOME/.asdf")  command -v asdf   >/dev/null 2>&1 && inpath=1 ;;
+    "$HOME/.volta") command -v volta  >/dev/null 2>&1 && inpath=1 ;;
+  esac
+  [ "$loaded" -eq 1 ] && [ "$inpath" -eq 1 ] && return 0
+  # 3) 当前运行时真的由它提供（nvm/pyenv 换了但没删的典型）
+  local rt
+  for rt in node python3 ruby; do
+    command -v "$rt" 2>/dev/null | grep -qF "$dir/" && return 0
+  done
+  # 4) 最近 30 天动过
+  find "$dir" -maxdepth 0 -mtime -30 2>/dev/null | grep -q . && return 0
+  return 1
+}
+
 # ── 白名单：组|路径|名称|清理命令|代价 ─────────────────────
 # group: residue(残留·可清) / cache(缓存·可清) / data(数据·锁死)
 # ⛔ 命令写死在这里，不从外部输入拼装
@@ -70,6 +115,10 @@ for e in "${ENTRIES[@]}"; do
   i=$((i+1))
   [ -z "${kb:-}" ] && continue
   [ "$kb" -lt 10240 ] && continue          # <10MB 不值得列
+  # 版本管理器：先判活跃，还在用的锁成 data，不提供删除
+  if [ "$g" = "residue" ] && mgr_pattern "$p" >/dev/null 2>&1 && mgr_in_use "$p"; then
+    g="data"; c="—"; w="⛔ 检测到仍在使用（shell 配置 / PATH / 运行时指向它），已锁定"
+  fi
   G_ARR+=("$g"); P_ARR+=("$p"); N_ARR+=("$n"); C_ARR+=("$c"); W_ARR+=("$w"); S_ARR+=("$kb")
   SEL+=(0)                                  # ⭐ 默认全不选
 done

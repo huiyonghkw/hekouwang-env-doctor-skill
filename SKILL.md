@@ -7,7 +7,7 @@ license: MIT
 homepage: https://github.com/huiyonghkw/hekouwang-env-doctor-skill
 version: 1.2.2
 allowed-tools: Bash, Read
-description: 会勇禾口王 · 开发环境体检器（第三把 doctor）。扫描 Mac/Linux 上被开发工具占掉的磁盘空间，把每个目录判定成「数据 / 缓存 / 残留」三类，重点识别**你已经换掉但从没卸干净的旧工具**（如还留着 nvm 却早就在用 fnm），逐条给出判定依据、官方清理命令与代价。配交互式清理选择器（空格勾选、数据类锁死勾不上、确认后才执行、支持 --dry-run），删什么由你逐项勾。触发：用户说「磁盘满了 / 硬盘不够了 / 清理缓存 / 电脑越用越满 / 开发环境体检 / 查查什么占空间 / env-doctor / 环境体检 / disk doctor / 我的 Mac 空间去哪了 / node_modules 太大 / 缓存清理 / 残留清理 / 换过 nvm 想清干净」。任何「查/清 本机磁盘被开发工具占用」的请求都应触发。
+description: "开发环境与磁盘体检：找出被开发工具占用的空间，判定数据/缓存/残留并给清理命令与交互式清理。附 scripts/run-all-doctors.sh：会调用 claude-md-doctor 与 skill-doctor，额外报告配置与技能分数，属附加能力。"
 ---
 
 # 开发环境体检器 · env-doctor
