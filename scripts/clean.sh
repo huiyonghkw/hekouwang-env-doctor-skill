@@ -11,11 +11,18 @@
 # 用法：
 #   bash clean.sh              # 交互选择
 #   bash clean.sh --dry-run    # 只演示不执行（推荐第一次用）
+#   bash clean.sh --yes        # 跳过逐项确认（汇总页仍需输入 yes）
 #
 set -uo pipefail
 
 DRY=0
-[ "${1:-}" = "--dry-run" ] && DRY=1
+YES=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY=1 ;;
+    --yes)     YES=1 ;;
+  esac
+done
 
 # ── 配色 ────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -74,16 +81,20 @@ mgr_in_use() {  # 还在用 → 0
 # ── 白名单：组|路径|名称|清理命令|代价 ─────────────────────
 # group: residue(残留·可清) / cache(缓存·可清) / data(数据·锁死)
 # ⛔ 命令写死在这里，不从外部输入拼装
+# Homebrew 旧版本与下载缓存必须分开：清缓存不得连带删除已装版本
+HOMEBREW_CELLAR=""
+command -v brew >/dev/null 2>&1 && HOMEBREW_CELLAR=$(brew --cellar 2>/dev/null)
 ENTRIES=(
   "residue|$HOME/.nvm|nvm（node 版本管理器）|rm -rf \"\$HOME/.nvm\"|以后要用 nvm 需重装；记得删 shell 里 NVM_DIR 那几行"
   "residue|$HOME/.pyenv|pyenv（python 版本管理器）|rm -rf \"\$HOME/.pyenv\"|以后要用 pyenv 需重装；记得删 shell 里 pyenv init 那几行"
   "residue|$HOME/.rbenv|rbenv（ruby 版本管理器）|rm -rf \"\$HOME/.rbenv\"|同上，注意 shell 配置"
   "residue|$HOME/.asdf|asdf（多语言版本管理器）|rm -rf \"\$HOME/.asdf\"|同上，注意 shell 配置"
   "residue|$HOME/.volta|volta（node 工具链）|rm -rf \"\$HOME/.volta\"|同上，注意 shell 配置"
+  "residue|$HOMEBREW_CELLAR|Homebrew 旧版本（官方 brew cleanup）|brew cleanup|显示体积为 Cellar 总量上限；只删过期旧版本、保留当前版本，可能连带清过期下载"
   "cache|$HOME/.npm|npm 缓存|npm cache clean --force|下次装包重下"
   "cache|$HOME/.cache/yarn|yarn 缓存|yarn cache clean|重下依赖"
   "cache|$HOME/Library/pnpm|pnpm store|pnpm store prune|只清无引用的包，很安全"
-  "cache|$HOME/Library/Caches/Homebrew|Homebrew 下载缓存|brew cleanup|重下安装包"
+  "cache|$HOME/Library/Caches/Homebrew|Homebrew 下载缓存（仅缓存）|rm -rf \"$HOME/Library/Caches/Homebrew\"|只清下载缓存，已安装版本不动，重下安装包"
   "cache|$HOME/Library/Caches/pip|pip 缓存|pip cache purge|重下 wheel"
   "cache|$HOME/.cache/uv|uv 缓存|uv cache clean|重下依赖"
   "cache|$HOME/Library/Developer/Xcode/DerivedData|Xcode 构建产物|rm -rf \"\$HOME/Library/Developer/Xcode/DerivedData\"|下次编译变慢，Xcode 会重建"
@@ -207,7 +218,7 @@ for i in "${CHOSEN[@]}"; do
   printf " %s%s%s  %s\n" "$B" "$(short "${P_ARR[$i]}")" "$R" "$D$(human "${S_ARR[$i]}")$R"
   printf "   %s$%s %s\n" "$D" "$R" "${C_ARR[$i]}"
   printf "   %s代价：%s%s\n\n" "$D" "${W_ARR[$i]}" "$R"
-  [ "${G_ARR[$i]}" = "residue" ] && NEEDS_SHELL_NOTE=1
+  [ "${G_ARR[$i]}" = "residue" ] && mgr_pattern "${P_ARR[$i]}" >/dev/null 2>&1 && NEEDS_SHELL_NOTE=1
 done
 
 if [ "$NEEDS_SHELL_NOTE" -eq 1 ]; then
@@ -224,11 +235,18 @@ printf "%s确认执行？输入 %syes%s%s 继续，其他任意键取消：%s " 
 read -r ans
 [ "$ans" != "yes" ] && { printf "%s已取消，什么都没动。%s\n" "$D" "$R"; exit 0; }
 
-# ── 执行（只跑白名单里的固定命令）──────────────────────────
+# ── 执行（只跑白名单里的固定命令；逐项打印路径并确认）──────────
 printf "\n"
-OK=0; FAIL=0; FREED=0
+OK=0; FAIL=0; SKIP=0; FREED=0
 for i in "${CHOSEN[@]}"; do
-  printf " %s▸%s %s … " "$C" "$R" "$(short "${P_ARR[$i]}")"
+  printf "\n %s▸%s 将删除：%s%s%s\n" "$C" "$R" "$B" "$(short "${P_ARR[$i]}")" "$R"
+  printf "   命令：%s%s%s\n" "$D" "${C_ARR[$i]}" "$R"
+  if [ "$YES" -eq 0 ]; then
+    printf "   %s确认删除这一项？输入 y 继续，其他跳过：%s " "$B" "$R"
+    read -r one
+    [ "$one" = "y" ] || { printf "   %s已跳过%s\n" "$D" "$R"; SKIP=$((SKIP+1)); continue; }
+  fi
+  printf "   执行中 … "
   if eval "${C_ARR[$i]}" >/dev/null 2>&1; then
     printf "%s✓%s\n" "$G" "$R"; OK=$((OK+1)); FREED=$((FREED+${S_ARR[$i]}))
   else
@@ -236,5 +254,5 @@ for i in "${CHOSEN[@]}"; do
   fi
 done
 
-printf "\n %s完成：成功 %d 项，失败 %d 项，回收约 %s%s%s\n" "$B" "$OK" "$FAIL" "$G" "$(human "$FREED")" "$R"
+printf "\n %s完成：成功 %d 项，失败 %d 项，跳过 %d 项，回收约 %s%s%s\n" "$B" "$OK" "$FAIL" "$SKIP" "$G" "$(human "$FREED")" "$R"
 [ "$NEEDS_SHELL_NOTE" -eq 1 ] && printf " %s别忘了清理 shell 配置里的初始化行。%s\n" "$Y" "$R"

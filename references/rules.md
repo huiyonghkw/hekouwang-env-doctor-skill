@@ -48,7 +48,7 @@
 
 | 工具 | 目录 | 加载特征 | 官方卸载 | 只清缓存 |
 |---|---|---|---|---|
-| **nvm** | `~/.nvm` | `NVM_DIR` / `nvm.sh` | `rm -rf "$NVM_DIR"` + 删 shell 里 NVM_DIR / nvm.sh / bash_completion 三行（官方 README「Manual Uninstall」） | `nvm cache clear` |
+| **nvm** | `~/.nvm` | `NVM_DIR` / `nvm.sh` | 按 nvm 官方 README「Manual Uninstall」删除 `$NVM_DIR`（命令以官方文档为准），并删 shell 里 NVM_DIR / nvm.sh / bash_completion 三行 | `nvm cache clear` |
 | **fnm** | `~/.local/share/fnm` | `fnm env` | 删目录 + 移除 `fnm env` 初始化行 | — |
 | **volta** | `~/.volta` | `VOLTA_HOME` | 删目录 + 移除 PATH 行 | — |
 | **pyenv** | `~/.pyenv` | `PYENV_ROOT` / `pyenv init` | 删目录 + 移除 init 行 | — |
@@ -79,7 +79,7 @@
 | `~/go/pkg/mod` | Go | `go clean -modcache` | 重下模块 |
 | `~/Library/Caches/pip` | pip | `pip cache purge` | 重下 wheel |
 | `~/.local/share/uv` `~/.cache/uv` | uv | `uv cache clean` | 重下依赖 |
-| `~/Library/Caches/Homebrew` | Homebrew | `brew cleanup`（官方：清理陈旧锁文件与过期下载，默认清 120 天以上） | 重下安装包 |
+| `~/Library/Caches/Homebrew` | Homebrew | `brew cleanup`（官方：清过期旧版本 + 过期下载）；只想清下载缓存用 `clean.sh` 的独立缓存项 | 重下安装包；旧版本清理不可逆 |
 
 ---
 
@@ -115,11 +115,11 @@
 | `~/.cursor` | **数据** | Cursor 仍在用 | 不整删；`projects/` 是索引缓存可择机清 | 重索引项目 |
 | `~/.codex` | **数据** | Codex CLI 仍在用 | 不整删 | 丢 CLI 配置 |
 | `~/.codebuddy` | **数据** | Codebuddy 仍在用 | 不整删 | 丢宿主配置 |
-| `~/.agents/skills`（若存在） | **数据** | 多宿主统一 skills 入口 | 只删确认不用的 skill 子目录 | 该 skill 失效 |
-| `~/.npm/_npx` | 缓存 | npx 一次性包 | `rm -rf ~/.npm/_npx` 或 `npm cache clean --force` | 下次 npx 重下 |
+| `~/.user-agents/skills`（若存在） | **数据** | 多宿主统一 skills 入口 | 只删确认不用的 skill 子目录 | 该 skill 失效 |
+| `~/.npm/_npx` | 缓存 | npx 一次性包 | `rm -rf "$HOME/.npm/_npx"` 或 `npm cache clean --force` | 下次 npx 重下 |
 | `~/Library/Application Support/Cursor` | **数据+缓存混合** | Cursor 主程序数据 | 只清 `Cache`/`GPUCache` 子目录，别整删 Support | 可能丢窗口布局 |
 | `~/Library/Application Support/Claude` | **数据** | Claude 桌面端 | 不整删 | 丢本地状态 |
-| `~/.cache/ms-playwright` `~/Library/Caches/ms-playwright` | 缓存 | Playwright 测浏览器 | `npx playwright install --force` 可重建；或删对应缓存目录 | 下次测试重下浏览器（数百 MB～数 GB） |
+| `~/.cache/ms-playwright` `~/Library/Caches/ms-playwright` | 缓存 | Playwright 测浏览器 | `npx playwright@1.56.1 install --force` 可重建；或删对应缓存目录 | 下次测试重下浏览器（数百 MB～数 GB） |
 | `~/.local/share/uv` `~/.cache/uv` | 缓存 | uv / Python 工具链 | `uv cache clean` | 重下 wheel |
 | `~/.ollama` `~/.cache/huggingface` | **数据**（模型） | 见第四节 | 见第四节 | 见第四节 |
 

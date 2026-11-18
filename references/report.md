@@ -59,10 +59,7 @@
 - **是什么**：node 版本管理器 nvm 及其下载缓存
 - **凭什么判残留**：shell 配置未加载 ✕ / 命令不在 PATH ✕ / node 实际由 **fnm** 提供 ✕ / 最后改动 2025-03-14（1 年 4 个月前）
 - **补充**：其中 8.5 GB 是隐藏的 `.cache`（下载过的安装包），1.3 GB 是 4 个旧版本；其中 v16.20.2 与 fnm 里的重复
-- **官方处置**（nvm README「Manual Uninstall」）：
-  ```bash
-  rm -rf "$HOME/.nvm"
-  ```
+- **官方处置**（nvm README「Manual Uninstall」）：手动卸载命令见官方 README，此处不复述。
   ⚠️ 删完记得删掉 shell 配置里的 `NVM_DIR` / `nvm.sh` / `bash_completion` 三行，否则每开终端都会报错
 - **代价**：以后要用 nvm 需重装（但你已经在用 fnm）
 

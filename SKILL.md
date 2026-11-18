@@ -5,9 +5,9 @@ displayName: 开发环境体检器（env-doctor）
 summary: Disk cleanup / dev env doctor / Mac Linux cache scanner — 四信号判「工具还在用吗」，分 数据/缓存/残留。AI dev profile + interactive cleaner. Third of hekouwang-doctor-suite.
 license: MIT
 homepage: https://github.com/huiyonghkw/hekouwang-env-doctor-skill
-version: 1.2.2
+version: 1.2.5
 allowed-tools: Bash, Read
-description: "开发环境与磁盘体检：找出被开发工具占用的空间，判定数据/缓存/残留并给清理命令与交互式清理。附 scripts/run-all-doctors.sh：会调用 claude-md-doctor 与 skill-doctor，额外报告配置与技能分数，属附加能力。"
+description: "开发环境与磁盘体检：默认只读扫描（不读用户文档内容、不联网、不上报），按数据/缓存/残留三分法给出判定与官方清理建议；clean 子命令仅在逐项确认后删除缓存与旧版本。附 scripts/run-all-doctors.sh：会调用 claude-md-doctor 与 skill-doctor，额外报告配置与技能分数，属附加能力。"
 ---
 
 # 开发环境体检器 · env-doctor
@@ -65,7 +65,7 @@ bash scripts/clean.sh             # 勾选后清理
 ```
 
 交互式勾选：`空格`勾选 · `↑↓`移动 · `a`全选 · `n`全不选 · `回车`确认 · `q`退出。
-**数据类带 🔒 锁死勾不上**；确认页逐条列出将执行的命令与代价，输入 `yes` 才动手。
+**数据类带 🔒 锁死勾不上**；确认页逐条列出将执行的命令与代价，输入 `yes` 才动手；执行时每项再打印路径单独确认（`--yes` 可跳过逐项确认，汇总页的 `yes` 仍必须输入）。
 
 ---
 

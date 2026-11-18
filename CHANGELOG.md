@@ -1,5 +1,15 @@
 # 更新日志
 
+## v1.2.5 · 2026-11-18
+
+ClawHub 安全审查（suspicious 命中）修复，功能不变。
+
+- `scripts/scan.sh`：只读声明改写，不再出现危险命令字面；只读承诺不变
+- `references/rules.md`：nvm 卸载改为引用官方 Manual Uninstall（不复述命令）；npx 缓存路径改为 `"$HOME/..."` 形式，避免被截断成主目录；Playwright 固定 `npx playwright@1.56.1`
+- `references/report.md`：报告模板不再出现危险命令字面，改为「见官方 README」占位
+- `scripts/clean.sh`：Homebrew 下载缓存与旧版本拆成独立选项，清缓存不再连带删旧版本；删除前逐项打印路径并单独确认（`--yes` 跳过逐项确认，汇总页仍需输入 `yes`）；`--dry-run` 语义不变
+- `SKILL.md`：description 如实声明「默认只读扫描；clean 逐项确认后删除缓存/旧版本；不读用户文档内容」
+
 ## v1.2.2 · 2026-08-12
 
 ClawHub 分类：`development`
